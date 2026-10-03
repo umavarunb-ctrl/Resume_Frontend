@@ -14,7 +14,7 @@
   "overrides": {
     "rolldown": "1.2.1",
     "@tanstack/start-server-core": "1.169.39",
-    "@tanstack/router-core": "1.170.41"
+    "@tanstack/router-core": "1.171.34"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
