@@ -6,6 +6,7 @@ import {
   FileText,
   Search,
   Users,
+  TrendingUp,
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ import { dashboardQueryKeys, dashboardService } from "@/lib/api/dashboard-servic
 import { authService } from "@/lib/api/auth-service";
 import { useEffect, useState } from "react";
 
-export const Route = createFileRoute("/_workspace/")({
+export const Route = createFileRoute("/_workspace/dashboard")({
   loader: ({ context }) => {
     return Promise.all([
       context.queryClient.ensureQueryData({
@@ -35,13 +36,12 @@ export const Route = createFileRoute("/_workspace/")({
         name: "description",
         content: "Recruiter overview of recent candidates, resume activity, and talent search.",
       },
-      { property: "og:title", content: "Recruiter Dashboard | Archivum" },
+      { property: "og:title", content: "Dashboard | Archivum Talent Ledger" },
       {
         property: "og:description",
-        content: "A clear overview of your candidate archive and resume activity.",
+        content: "Recruiter overview of recent candidates, resume activity, and talent search.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: DashboardPage,
@@ -60,11 +60,9 @@ function DashboardPage() {
 
   const [userName, setUserName] = useState("Recruiter");
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      authService.getCurrentUser().then((u) => {
-        if (u && u.name) setUserName(u.name);
-      });
-    }
+    authService.getCurrentUser().then((u) => {
+      if (u && u.name) setUserName(u.name);
+    });
   }, []);
 
   const totalCandidates = stats?.total_candidates ?? candidates.length;
@@ -104,7 +102,9 @@ function DashboardPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Welcome back, {userName}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Find the right candidate faster.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Monitor talent metrics, review new resumes, and find candidates faster.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" size="sm">
@@ -120,6 +120,7 @@ function DashboardPage() {
         </div>
       </div>
 
+      {/* Live Backend Statistics */}
       <section
         aria-label="Workspace statistics"
         className="overflow-hidden rounded-xl border border-border bg-card shadow-sm"
@@ -146,13 +147,14 @@ function DashboardPage() {
         </div>
       </section>
 
+      {/* Main Content Grid */}
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_290px]">
         <section className="min-w-0">
           <div className="mb-3 flex items-center justify-between">
             <div>
               <h2 className="text-base font-semibold">Recent candidates</h2>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Latest profiles added to your archive
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Latest candidate profiles added to your archive ledger
               </p>
             </div>
             <Button asChild variant="ghost" size="sm">

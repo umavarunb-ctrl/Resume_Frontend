@@ -1,28 +1,402 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowLeft, Download, FileText, MapPin, Mail, Phone, BriefcaseBusiness, GraduationCap } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import {
+  ArrowLeft,
+  Download,
+  FileText,
+  MapPin,
+  Mail,
+  Phone,
+  BriefcaseBusiness,
+  GraduationCap,
+  MessageSquare,
+  ExternalLink,
+  UserX,
+  Sparkles,
+  FolderOpen,
+  Calendar,
+  Trophy,
+  Award,
+  Building2,
+} from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { candidateQueryKeys, candidateService } from "@/lib/api/candidate-service";
 import { formatUploaded, SkillList } from "@/components/candidates/candidate-parts";
+import { ResumeViewerDialog } from "@/components/candidates/resume-viewer-dialog";
+import { useChat } from "@/hooks/useChat";
+import config from "@/lib/config";
 
 export const Route = createFileRoute("/_workspace/candidates/$id")({
-  loader: async ({ context, params }) => { const candidate = await context.queryClient.ensureQueryData({ queryKey: candidateQueryKeys.detail(params.id), queryFn: () => candidateService.getCandidate(params.id) }); if (!candidate) throw notFound(); return candidate; },
-  head: ({ loaderData }) => ({ meta: [{ title: `${loaderData?.name ?? "Candidate"} | Archivum` }, { name: "description", content: `Candidate profile and resume details for ${loaderData?.name ?? "a recruiter candidate"}.` }, { property: "og:title", content: `${loaderData?.name ?? "Candidate"} | Archivum` }, { property: "og:description", content: `Profile and experience details for ${loaderData?.name ?? "a candidate"}.` }, { property: "og:type", content: "profile" }, { name: "twitter:card", content: "summary" }] }),
+  loader: async ({ context, params }) => {
+    return context.queryClient.ensureQueryData({
+      queryKey: candidateQueryKeys.detail(params.id),
+      queryFn: () => candidateService.getCandidate(params.id),
+    });
+  },
+  head: ({ loaderData }) => ({
+    meta: [
+      { title: `${loaderData?.name ?? "Candidate Profile"} | Archivum` },
+      {
+        name: "description",
+        content: `Candidate profile and resume details for ${loaderData?.name ?? "a candidate"}.`,
+      },
+      { property: "og:title", content: `${loaderData?.name ?? "Candidate"} | Archivum` },
+      {
+        property: "og:description",
+        content: `Profile and experience details for ${loaderData?.name ?? "a candidate"}.`,
+      },
+      { property: "og:type", content: "profile" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: CandidateProfilePage,
 });
 
 function CandidateProfilePage() {
   const { id } = Route.useParams();
-  const { data: candidate } = useSuspenseQuery({ queryKey: candidateQueryKeys.detail(id), queryFn: () => candidateService.getCandidate(id) });
+  const { data: candidate, isLoading } = useQuery({
+    queryKey: candidateQueryKeys.detail(id),
+    queryFn: () => candidateService.getCandidate(id),
+  });
   const [showResume, setShowResume] = useState(false);
-  if (!candidate) return <div className="py-20 text-center"><h1 className="text-xl font-semibold">Candidate not found</h1><Button asChild variant="outline" className="mt-4"><Link to="/candidates">Back to candidates</Link></Button></div>;
-  return <div className="space-y-6">
-    <Button asChild variant="ghost" size="sm"><Link to="/candidates"><ArrowLeft size={15} /> Back to candidates</Link></Button>
-    <section className="flex flex-col justify-between gap-5 border-y border-border py-5 sm:flex-row sm:items-center"><div className="flex items-center gap-4"><span className="grid size-14 place-items-center rounded-md bg-accent-soft text-lg font-semibold">{candidate.name.split(" ").map((part) => part[0]).slice(0, 2).join("")}</span><div><p className="font-mono text-[9px] uppercase text-accent">Candidate profile</p><h1 className="mt-1 text-2xl font-semibold">{candidate.name}</h1><p className="mt-1 text-sm text-muted-foreground">{candidate.currentRole} · {candidate.experienceYears} years experience</p><p className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground"><MapPin size={12} />{candidate.location}</p></div></div><div className="flex gap-2"><Button onClick={() => setShowResume(true)}><FileText size={15} /> View resume</Button><Button variant="outline" onClick={() => setShowResume(true)}><Download size={15} /> Download</Button></div></section>
-    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_280px]"><div className="space-y-7"><section><h2 className="text-base font-semibold">Professional summary</h2><p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">{candidate.summary}</p></section><section><h2 className="mb-3 text-base font-semibold">Experience</h2><div className="space-y-5 border-l border-border pl-5">{candidate.experience.map((item) => <div key={`${item.company}-${item.title}`} className="relative"><span className="absolute -left-[25px] top-1 size-2 rounded-full bg-accent ring-4 ring-background" /><h3 className="text-sm font-semibold">{item.title}</h3><p className="mt-1 text-sm text-muted-foreground">{item.company} · {item.period}</p><ul className="mt-2 list-disc space-y-1 pl-4 text-xs leading-5 text-muted-foreground">{item.highlights.map((highlight) => <li key={highlight}>{highlight}</li>)}</ul></div>)}</div></section><section><h2 className="mb-3 text-base font-semibold">Projects</h2><div className="divide-y divide-border border-y border-border">{candidate.projects.map((project) => <div key={project.name} className="py-4"><h3 className="text-sm font-medium">{project.name}</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">{project.description}</p><div className="mt-2"><SkillList skills={project.stack} /></div></div>)}</div></section><section><h2 className="mb-3 text-base font-semibold">Education</h2>{candidate.education.map((education) => <div key={education.school} className="flex gap-3 border-y border-border py-3"><GraduationCap size={17} className="mt-0.5 text-muted-foreground" /><div><h3 className="text-sm font-medium">{education.degree}</h3><p className="mt-1 text-xs text-muted-foreground">{education.school} · {education.period}</p></div></div>)}</section></div>
-      <aside className="space-y-5 border-t border-border pt-5 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0"><section><h2 className="text-sm font-semibold">Contact</h2><div className="mt-3 space-y-3 text-xs text-muted-foreground"><a className="flex items-center gap-2 break-all hover:text-foreground" href={`mailto:${candidate.email}`}><Mail size={14} />{candidate.email}</a><a className="flex items-center gap-2 hover:text-foreground" href={`tel:${candidate.phone}`}><Phone size={14} />{candidate.phone}</a><p className="flex items-center gap-2"><MapPin size={14} />{candidate.location}</p></div></section><section className="border-t border-border pt-4"><h2 className="mb-3 text-sm font-semibold">Skills</h2><div className="flex flex-wrap gap-1.5">{candidate.skills.map((skill) => <Badge key={skill} variant="secondary" className="rounded font-normal">{skill}</Badge>)}</div></section><section className="border-t border-border pt-4"><h2 className="mb-2 text-sm font-semibold">Certifications</h2>{candidate.certifications.map((cert) => <p key={cert} className="flex items-center gap-2 py-1 text-xs text-muted-foreground"><BriefcaseBusiness size={13} />{cert}</p>)}</section><section className="border-t border-border pt-4"><h2 className="text-sm font-semibold">Archive details</h2><p className="mt-2 text-xs text-muted-foreground">Added {formatUploaded(candidate.uploadedAt)}</p><p className="mt-1 text-xs text-muted-foreground">Availability: {candidate.availability}</p></section></aside></div>
-    {showResume && <div role="dialog" aria-modal="true" aria-labelledby="resume-title" className="fixed inset-0 z-50 grid place-items-center bg-foreground/40 p-4" onClick={() => setShowResume(false)}><div className="w-full max-w-lg rounded-lg border border-border bg-background p-6 shadow-xl" onClick={(event) => event.stopPropagation()}><h2 id="resume-title" className="text-base font-semibold">{candidate.name} · Resume</h2><p className="mt-1 text-xs text-muted-foreground">No original resume file is attached to this sample profile.</p><div className="my-5 border-y border-border py-8 text-center text-sm">A connected service must provide the PDF to view or download it.</div><div className="flex justify-end"><Button variant="outline" onClick={() => setShowResume(false)}>Close</Button></div></div></div>}
-  </div>;
+  const { createOrGetCandidateDiscussion } = useChat();
+  const navigate = useNavigate();
+
+  const handleDiscussInternally = async () => {
+    if (!candidate) return;
+    const conv = await createOrGetCandidateDiscussion(candidate.id, candidate.name);
+    navigate({ to: "/chat", search: { c: conv.id } });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="py-24 text-center">
+        <div className="mx-auto size-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <p className="mt-4 text-sm text-muted-foreground">Loading candidate profile...</p>
+      </div>
+    );
+  }
+
+  if (!candidate) {
+    return (
+      <div className="mx-auto max-w-md py-20 text-center">
+        <div className="mx-auto grid size-12 place-items-center rounded-full bg-secondary">
+          <UserX size={24} className="text-muted-foreground" />
+        </div>
+        <h1 className="mt-4 text-xl font-semibold">Candidate Not Found</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          No profile found for ID <code className="rounded bg-secondary px-1.5 py-0.5 font-mono text-xs">{id}</code>.
+        </p>
+        <div className="mt-6 flex justify-center gap-3">
+          <Button asChild variant="default">
+            <Link to="/candidates">View All Candidates</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/search">Find Candidates</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 pb-20">
+      {/* Top action bar */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <Button asChild variant="ghost" size="sm" className="-ml-2">
+          <Link to="/candidates">
+            <ArrowLeft size={15} className="mr-1" /> Back to candidates
+          </Link>
+        </Button>
+        <div className="flex flex-wrap gap-2 justify-end">
+          <Button
+            onClick={handleDiscussInternally}
+            variant="secondary"
+            className="bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary border border-primary/20 shadow-sm"
+          >
+            <MessageSquare size={15} className="mr-1.5" /> Discuss Internally
+          </Button>
+          <Button onClick={() => setShowResume(true)} variant="outline">
+            <FileText size={15} className="mr-1.5" /> View original PDF
+          </Button>
+          <Button onClick={() => setShowResume(true)}>
+            <Download size={15} className="mr-1.5" /> Download PDF
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Resume Card */}
+      <div className="mx-auto w-full max-w-[850px] overflow-hidden rounded-xl bg-card text-card-foreground shadow-md ring-1 ring-border sm:p-12 p-6 md:p-14">
+        {/* Resume Header */}
+        <header className="mb-8 text-center border-b border-border pb-8">
+          <h1 className="text-3xl font-serif font-bold tracking-tight md:text-4xl text-foreground">
+            {candidate.name}
+          </h1>
+          <p className="mt-2 text-lg font-medium text-muted-foreground">
+            {candidate.currentRole}
+            {candidate.experienceYears > 0 && (
+              <>
+                <span className="mx-1.5 opacity-50">•</span>
+                {candidate.experienceYears}+ Years Experience
+              </>
+            )}
+          </p>
+
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+            {candidate.email && (
+              <a
+                href={`mailto:${candidate.email}`}
+                className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+              >
+                <Mail size={14} /> {candidate.email}
+              </a>
+            )}
+            {candidate.phone && (
+              <a
+                href={`tel:${candidate.phone}`}
+                className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+              >
+                <Phone size={14} /> {candidate.phone}
+              </a>
+            )}
+            <span className="flex items-center gap-1.5">
+              <MapPin size={14} /> {candidate.location}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="flex size-1.5 rounded-full bg-emerald-500" />
+              Available: {candidate.availability}
+            </span>
+          </div>
+        </header>
+
+        {/* Resume Content */}
+        <div className="space-y-8">
+          {/* Summary */}
+          {candidate.summary && (
+            <section>
+              <h2 className="mb-3 text-xs font-mono font-semibold uppercase tracking-wider text-accent border-b border-border pb-1">
+                Professional Summary
+              </h2>
+              <p className="text-sm leading-relaxed text-muted-foreground">{candidate.summary}</p>
+            </section>
+          )}
+
+          {/* Key Achievements & Honors (Top-level) */}
+          {candidate.achievements && candidate.achievements.length > 0 && (
+            <section>
+              <h2 className="mb-4 text-xs font-mono font-semibold uppercase tracking-wider text-accent border-b border-border pb-1 flex items-center gap-2">
+                <Trophy size={14} className="text-amber-500" />
+                Key Achievements & Honors
+              </h2>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {candidate.achievements.map((achievement, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-start gap-2.5 p-3 rounded-lg border border-border/70 bg-surface/50 shadow-2xs"
+                  >
+                    <div className="p-1.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">
+                      <Trophy size={14} />
+                    </div>
+                    <p className="text-xs leading-relaxed font-medium text-foreground">{achievement}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <div className="grid gap-8 md:grid-cols-[1fr_260px]">
+            <div className="space-y-8">
+              {/* Experience */}
+              {candidate.experience && candidate.experience.length > 0 && (
+                <section>
+                  <h2 className="mb-4 text-xs font-mono font-semibold uppercase tracking-wider text-accent border-b border-border pb-1 flex items-center gap-2">
+                    <BriefcaseBusiness size={14} />
+                    Experience
+                  </h2>
+                  <div className="space-y-6">
+                    {candidate.experience.map((item, index) => (
+                      <div key={`${item.company}-${item.title}-${index}`} className="group/exp">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
+                          <div>
+                            <h3 className="text-base font-semibold text-foreground">{item.title}</h3>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              {item.company && (
+                                <p className="font-medium text-muted-foreground text-sm flex items-center gap-1">
+                                  <Building2 size={13} className="text-muted-foreground/70" />
+                                  {item.company}
+                                </p>
+                              )}
+                              {item.location && (
+                                <span className="text-xs text-muted-foreground/80 flex items-center gap-1">
+                                  • <MapPin size={11} /> {item.location}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {item.period && (
+                            <div className="mt-1 sm:mt-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary/80 border border-border/70 text-xs font-medium text-foreground whitespace-nowrap shrink-0">
+                              <Calendar size={12} className="text-primary" />
+                              <span>{item.period}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Responsibilities & Highlights */}
+                        {item.highlights && item.highlights.length > 0 && (
+                          <ul className="mt-3 list-disc space-y-1.5 pl-4 text-sm text-muted-foreground marker:text-muted-foreground/50">
+                            {item.highlights.map((highlight, idx) => (
+                              <li key={idx} className="leading-relaxed pl-1">
+                                {highlight}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+
+                        {/* Experience Key Achievements */}
+                        {item.achievements && item.achievements.length > 0 && (
+                          <div className="mt-3 rounded-lg border border-amber-500/25 bg-amber-500/5 dark:bg-amber-500/10 p-3">
+                            <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1.5">
+                              <Trophy size={13} className="text-amber-500 shrink-0" />
+                              <span>Key Achievements & Impact</span>
+                            </div>
+                            <ul className="space-y-1 pl-1 text-xs text-foreground/90">
+                              {item.achievements.map((ach, idx) => (
+                                <li key={idx} className="flex items-start gap-1.5">
+                                  <span className="text-amber-500 font-bold mt-0.5">•</span>
+                                  <span>{ach}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Projects */}
+              {candidate.projects && candidate.projects.length > 0 && (
+                <section>
+                  <h2 className="mb-4 text-xs font-mono font-semibold uppercase tracking-wider text-accent border-b border-border pb-1">
+                    Projects
+                  </h2>
+                  <div className="space-y-5">
+                    {candidate.projects.map((project, index) => (
+                      <div key={`${project.name}-${index}`}>
+                        <h3 className="text-base font-semibold">{project.name}</h3>
+                        {project.description && (
+                          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                            {project.description}
+                          </p>
+                        )}
+                        {project.stack && project.stack.length > 0 && (
+                          <div className="mt-2.5">
+                            <SkillList skills={project.stack} />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+
+            <div className="space-y-8">
+              {/* Skills */}
+              {candidate.skills && candidate.skills.length > 0 && (
+                <section>
+                  <h2 className="mb-3 text-xs font-mono font-semibold uppercase tracking-wider text-accent border-b border-border pb-1">
+                    Skills
+                  </h2>
+                  <div className="flex flex-wrap gap-1.5">
+                    {candidate.skills.map((skill) => (
+                      <Badge
+                        key={skill}
+                        variant="secondary"
+                        className="rounded-md font-medium px-2 py-0.5"
+                      >
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Education */}
+              {candidate.education && candidate.education.length > 0 && (
+                <section>
+                  <h2 className="mb-3 text-xs font-mono font-semibold uppercase tracking-wider text-accent border-b border-border pb-1">
+                    Education
+                  </h2>
+                  <div className="space-y-4">
+                    {candidate.education.map((education, idx) => (
+                      <div key={idx}>
+                        <h3 className="text-sm font-semibold">{education.degree}</h3>
+                        {education.school && (
+                          <p className="mt-0.5 text-sm text-muted-foreground">{education.school}</p>
+                        )}
+                        {education.period && (
+                          <p className="mt-0.5 text-xs font-medium text-muted-foreground/80">
+                            {education.period}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Certifications */}
+              {candidate.certifications && candidate.certifications.length > 0 && (
+                <section>
+                  <h2 className="mb-3 text-xs font-mono font-semibold uppercase tracking-wider text-accent border-b border-border pb-1">
+                    Certifications
+                  </h2>
+                  <ul className="space-y-3">
+                    {candidate.certifications.map((cert, idx) => (
+                      <li
+                        key={idx}
+                        className="flex items-start gap-2 text-sm text-muted-foreground"
+                      >
+                        <BriefcaseBusiness size={14} className="mt-0.5 shrink-0 text-accent" />
+                        <div>
+                          <span className="font-semibold text-foreground">{cert.name}</span>
+                          {(cert.provider || cert.date) && (
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                              {cert.provider} {cert.provider && cert.date ? "•" : ""} {cert.date}
+                            </p>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              {/* Additional Details */}
+              <section>
+                <h2 className="mb-3 text-xs font-mono font-semibold uppercase tracking-wider text-accent border-b border-border pb-1">
+                  Metadata
+                </h2>
+                <div className="space-y-2 text-xs text-muted-foreground">
+                  <p>Archived: {formatUploaded(candidate.uploadedAt)}</p>
+                  <p className="truncate">
+                    ID: <span className="font-mono">{candidate.id}</span>
+                  </p>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* PDF Viewer Dialog */}
+      {showResume && (
+        <ResumeViewerDialog candidate={candidate} onClose={() => setShowResume(false)} />
+      )}
+    </div>
+  );
 }

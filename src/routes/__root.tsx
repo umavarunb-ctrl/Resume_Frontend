@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -77,11 +78,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Archivum | Recruiter Workspace" },
-      { name: "description", content: "A focused workspace for finding and managing candidate resumes." },
-      { name: "author", content: "Archivum" },
-      { property: "og:title", content: "Archivum | Recruiter Workspace" },
-      { property: "og:description", content: "A focused workspace for finding and managing candidate resumes." },
+      { title: "ATS flow | Recruiter Workspace" },
+      {
+        name: "description",
+        content: "A focused workspace for finding and managing candidate resumes.",
+      },
+      { name: "author", content: "ATS flow" },
+      { property: "og:title", content: "ATS flow | Recruiter Workspace" },
+      {
+        property: "og:description",
+        content: "A focused workspace for finding and managing candidate resumes.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
@@ -91,7 +98,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/logo.png", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/logo.png" },
     ],
   }),
   shellComponent: RootShell,
@@ -127,6 +135,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <Toaster />
     </QueryClientProvider>
   );
 }

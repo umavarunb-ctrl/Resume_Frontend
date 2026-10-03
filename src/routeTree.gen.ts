@@ -10,17 +10,26 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkspaceRouteImport } from './routes/_workspace'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as WorkspaceIndexRouteImport } from './routes/_workspace.index'
 import { Route as WorkspaceCandidatesRouteImport } from './routes/_workspace.candidates'
+import { Route as WorkspaceChatRouteImport } from './routes/_workspace.chat'
+import { Route as WorkspaceDashboardRouteImport } from './routes/_workspace.dashboard'
 import { Route as WorkspaceSearchRouteImport } from './routes/_workspace.search'
 import { Route as WorkspaceSettingsRouteImport } from './routes/_workspace.settings'
 import { Route as WorkspaceUploadRouteImport } from './routes/_workspace.upload'
+import { Route as WorkspaceCandidatesIndexRouteImport } from './routes/_workspace.candidates.index'
 import { Route as WorkspaceCandidatesIdRouteImport } from './routes/_workspace.candidates.$id'
 
 const WorkspaceRoute = WorkspaceRouteImport.update({
   id: '/_workspace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -43,6 +52,16 @@ const WorkspaceCandidatesRoute = WorkspaceCandidatesRouteImport.update({
   path: '/candidates',
   getParentRoute: () => WorkspaceRoute,
 } as any)
+const WorkspaceChatRoute = WorkspaceChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
+const WorkspaceDashboardRoute = WorkspaceDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
 const WorkspaceSearchRoute = WorkspaceSearchRouteImport.update({
   id: '/search',
   path: '/search',
@@ -58,6 +77,12 @@ const WorkspaceUploadRoute = WorkspaceUploadRouteImport.update({
   path: '/upload',
   getParentRoute: () => WorkspaceRoute,
 } as any)
+const WorkspaceCandidatesIndexRoute =
+  WorkspaceCandidatesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => WorkspaceCandidatesRoute,
+  } as any)
 const WorkspaceCandidatesIdRoute = WorkspaceCandidatesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -66,72 +91,95 @@ const WorkspaceCandidatesIdRoute = WorkspaceCandidatesIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof WorkspaceIndexRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/candidates': typeof WorkspaceCandidatesRouteWithChildren
+  '/chat': typeof WorkspaceChatRoute
+  '/dashboard': typeof WorkspaceDashboardRoute
   '/search': typeof WorkspaceSearchRoute
   '/settings': typeof WorkspaceSettingsRoute
   '/upload': typeof WorkspaceUploadRoute
   '/candidates/$id': typeof WorkspaceCandidatesIdRoute
+  '/candidates/': typeof WorkspaceCandidatesIndexRoute
 }
 export interface FileRoutesByTo {
+  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/candidates': typeof WorkspaceCandidatesRouteWithChildren
+  '/chat': typeof WorkspaceChatRoute
+  '/dashboard': typeof WorkspaceDashboardRoute
   '/search': typeof WorkspaceSearchRoute
   '/settings': typeof WorkspaceSettingsRoute
   '/upload': typeof WorkspaceUploadRoute
   '/': typeof WorkspaceIndexRoute
   '/candidates/$id': typeof WorkspaceCandidatesIdRoute
+  '/candidates': typeof WorkspaceCandidatesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_workspace': typeof WorkspaceRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/_workspace/candidates': typeof WorkspaceCandidatesRouteWithChildren
+  '/_workspace/chat': typeof WorkspaceChatRoute
+  '/_workspace/dashboard': typeof WorkspaceDashboardRoute
   '/_workspace/search': typeof WorkspaceSearchRoute
   '/_workspace/settings': typeof WorkspaceSettingsRoute
   '/_workspace/upload': typeof WorkspaceUploadRoute
   '/_workspace/': typeof WorkspaceIndexRoute
   '/_workspace/candidates/$id': typeof WorkspaceCandidatesIdRoute
+  '/_workspace/candidates/': typeof WorkspaceCandidatesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/forgot-password'
     | '/login'
     | '/register'
     | '/candidates'
+    | '/chat'
+    | '/dashboard'
     | '/search'
     | '/settings'
     | '/upload'
     | '/candidates/$id'
+    | '/candidates/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/forgot-password'
     | '/login'
     | '/register'
-    | '/candidates'
+    | '/chat'
+    | '/dashboard'
     | '/search'
     | '/settings'
     | '/upload'
     | '/'
     | '/candidates/$id'
+    | '/candidates'
   id:
     | '__root__'
     | '/_workspace'
+    | '/forgot-password'
     | '/login'
     | '/register'
     | '/_workspace/candidates'
+    | '/_workspace/chat'
+    | '/_workspace/dashboard'
     | '/_workspace/search'
     | '/_workspace/settings'
     | '/_workspace/upload'
     | '/_workspace/'
     | '/_workspace/candidates/$id'
+    | '/_workspace/candidates/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   WorkspaceRoute: typeof WorkspaceRouteWithChildren
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
 }
@@ -143,6 +191,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof WorkspaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -173,6 +228,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceCandidatesRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/chat': {
+      id: '/_workspace/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof WorkspaceChatRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/dashboard': {
+      id: '/_workspace/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof WorkspaceDashboardRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
     '/_workspace/search': {
       id: '/_workspace/search'
       path: '/search'
@@ -194,6 +263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceUploadRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/candidates/': {
+      id: '/_workspace/candidates/'
+      path: '/'
+      fullPath: '/candidates/'
+      preLoaderRoute: typeof WorkspaceCandidatesIndexRouteImport
+      parentRoute: typeof WorkspaceCandidatesRoute
+    }
     '/_workspace/candidates/$id': {
       id: '/_workspace/candidates/$id'
       path: '/$id'
@@ -206,10 +282,12 @@ declare module '@tanstack/react-router' {
 
 interface WorkspaceCandidatesRouteChildren {
   WorkspaceCandidatesIdRoute: typeof WorkspaceCandidatesIdRoute
+  WorkspaceCandidatesIndexRoute: typeof WorkspaceCandidatesIndexRoute
 }
 
 const WorkspaceCandidatesRouteChildren: WorkspaceCandidatesRouteChildren = {
   WorkspaceCandidatesIdRoute: WorkspaceCandidatesIdRoute,
+  WorkspaceCandidatesIndexRoute: WorkspaceCandidatesIndexRoute,
 }
 
 const WorkspaceCandidatesRouteWithChildren =
@@ -217,6 +295,8 @@ const WorkspaceCandidatesRouteWithChildren =
 
 interface WorkspaceRouteChildren {
   WorkspaceCandidatesRoute: typeof WorkspaceCandidatesRouteWithChildren
+  WorkspaceChatRoute: typeof WorkspaceChatRoute
+  WorkspaceDashboardRoute: typeof WorkspaceDashboardRoute
   WorkspaceSearchRoute: typeof WorkspaceSearchRoute
   WorkspaceSettingsRoute: typeof WorkspaceSettingsRoute
   WorkspaceUploadRoute: typeof WorkspaceUploadRoute
@@ -225,6 +305,8 @@ interface WorkspaceRouteChildren {
 
 const WorkspaceRouteChildren: WorkspaceRouteChildren = {
   WorkspaceCandidatesRoute: WorkspaceCandidatesRouteWithChildren,
+  WorkspaceChatRoute: WorkspaceChatRoute,
+  WorkspaceDashboardRoute: WorkspaceDashboardRoute,
   WorkspaceSearchRoute: WorkspaceSearchRoute,
   WorkspaceSettingsRoute: WorkspaceSettingsRoute,
   WorkspaceUploadRoute: WorkspaceUploadRoute,
@@ -237,6 +319,7 @@ const WorkspaceRouteWithChildren = WorkspaceRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   WorkspaceRoute: WorkspaceRouteWithChildren,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
 }

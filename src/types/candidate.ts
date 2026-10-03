@@ -4,7 +4,11 @@ export interface CandidateExperience {
   title: string;
   company: string;
   period: string;
+  startDate?: string | undefined;
+  endDate?: string | undefined;
+  location?: string | undefined;
   highlights: string[];
+  achievements?: string[] | undefined;
 }
 
 export interface CandidateEducation {
@@ -20,11 +24,17 @@ export interface CandidateProject {
   stack: string[];
 }
 
+export interface CandidateCertification {
+  name: string;
+  provider?: string | undefined;
+  date?: string | undefined;
+}
+
 export interface Candidate {
   id: string;
   name: string;
-  email?: string;
-  phone?: string;
+  email?: string | undefined;
+  phone?: string | undefined;
   location: string;
   currentRole: string;
   experienceYears: number;
@@ -32,9 +42,11 @@ export interface Candidate {
   education: CandidateEducation[];
   experience: CandidateExperience[];
   projects: CandidateProject[];
-  certifications: string[];
+  certifications: CandidateCertification[];
+  achievements?: string[] | undefined;
   summary: string;
-  resumeUrl?: string;
+  resumeUrl?: string | undefined;
+  uploadId?: string | undefined;
   uploadedAt: string;
   availability: "Available" | "Open to opportunities" | "Not specified";
 }
