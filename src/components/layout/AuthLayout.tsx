@@ -54,27 +54,28 @@ export function AuthLayout({
   return (
     <div className="min-h-screen w-full bg-background text-foreground flex flex-col lg:grid lg:grid-cols-2">
       {/* Left Column: Form Area */}
-      <div className="flex min-h-screen flex-col justify-between p-6 sm:p-10 lg:p-14 xl:p-16">
+      <div className="flex min-h-screen flex-col justify-between px-6 sm:px-10 lg:px-14 xl:px-16 pb-6 sm:pb-10 lg:pb-14 xl:pb-16 pt-4 sm:pt-6 lg:pt-8">
         {/* Brand Header */}
         <div className="w-full max-w-[420px] mx-auto lg:mx-0">
           <Link
             to="/"
-            className="group inline-flex items-center gap-3 transition-all hover:opacity-90"
+            className="group inline-flex items-center gap-1 transition-all hover:opacity-90"
             aria-label="ATS Flow Home"
           >
             <img
               src="/logo.png"
               alt="ATS Flow Logo"
-              className="size-11 sm:size-12 rounded-xl object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105"
+              className="size-18 -ml-2 rounded-xl object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105"
             />
-            <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-neutral-950 dark:text-white font-sans">
-              ATS Flow
+            <span className="flex flex-col items-start text-xl sm:text-2xl leading-tight font-extrabold tracking-tight text-neutral-950 dark:text-white font-sans -ml-2">
+              <span>TS</span>
+              <span>Flow</span>
             </span>
           </Link>
         </div>
 
         {/* Main Content Form */}
-        <div className="w-full max-w-[420px] mx-auto lg:mx-0 my-auto py-8">
+        <div className="w-full max-w-[420px] mx-auto lg:mx-0 mt-4 mb-auto py-4">
           <div className="mb-6 space-y-1.5">
             <h1 className="text-2xl sm:text-[28px] font-bold tracking-tight text-neutral-950 dark:text-neutral-50">
               {heading}
@@ -114,8 +115,8 @@ export function AuthLayout({
         <div className="w-full max-w-[420px] mx-auto lg:mx-0 pt-4 text-xs text-neutral-400 dark:text-neutral-600 flex items-center justify-between">
           <span>© {new Date().getFullYear()} ATS Flow Inc.</span>
           <span className="inline-flex items-center gap-1.5 text-neutral-500 dark:text-neutral-400">
-            <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            ATS Flow v2.4
+            {/* <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" /> */}
+            {/* ATS Flow v2.4 */}
           </span>
         </div>
       </div>

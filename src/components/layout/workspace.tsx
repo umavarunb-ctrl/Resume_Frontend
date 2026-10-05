@@ -31,16 +31,17 @@ function Brand() {
   return (
     <Link
       to="/"
-      className="flex items-center gap-3 rounded-lg px-2 py-2.5 transition-opacity hover:opacity-90"
+      className="flex items-center gap-0 rounded-lg px-6 py-2.5 transition-opacity hover:opacity-90"
       aria-label="ATS Flow dashboard"
     >
       <img
         src="/logo.png"
         alt="ATS Flow Logo"
-        className="size-12.5 rounded-xl object-contain drop-shadow-xs"
+        className="size-18 -ml-2 rounded-xl object-contain drop-shadow-xs"
       />
-      <span className="text-xl font-bold tracking-tight text-foreground font-sans">
-        ATS Flow
+      <span className="flex flex-col items-start text-xl leading-tight font-bold tracking-tight text-foreground font-sans">
+        <span>TS</span>
+        <span>Flow</span>
       </span>
     </Link>
   );
@@ -226,16 +227,19 @@ export function WorkspaceLayout() {
   if (authState === "loading") {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-foreground">
-        <div className="flex flex-col items-center gap-4 text-center animate-in fade-in duration-300">
-          <img
-            src="/logo.png"
-            alt="ATS Flow Logo"
-            className="size-18 rounded-2xl object-contain drop-shadow-md"
-          />
-          <div className="space-y-1">
-            <h2 className="text-lg font-bold tracking-tight text-foreground font-sans">
-              ATS Flow
+        <div className="flex flex-col items-center gap-2 text-center animate-in fade-in duration-300">
+          <div className="flex items-center gap-0">
+            <img
+              src="/logo.png"
+              alt="ATS Flow Logo"
+              className="size-18 -ml-2 rounded-2xl object-contain drop-shadow-md"
+            />
+            <h2 className="flex flex-col items-start text-3xl font-bold leading-tight tracking-tight text-foreground font-sans">
+              <span>TS</span>
+              <span>Flow</span>
             </h2>
+          </div>
+          <div className="space-y-1 mt-2">
             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
               <Loader2 className="size-3.5 animate-spin text-foreground" />
               <span>Verifying workspace authorization...</span>
